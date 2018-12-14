@@ -20,7 +20,7 @@ class Session(object):
         self.is_new = is_new
         self.secure_token = secure_token
         self.session_id = session_id
-        self.state_id = state_id
+        self.state_id = self.previous_state_id = state_id
         self.use_same_state = use_same_state
 
         self.data = {}
@@ -38,13 +38,14 @@ class Session(object):
         else:
             new_state_id, self.secure_token, data = self.sessions.fetch(self.session_id, self.state_id)
             if not self.use_same_state:
-                self.state_id = new_state_id
+                self.state_id, self.previous_state_id = new_state_id, self.state_id
             self.data, callbacks = data
 
         return self.data, callbacks
 
     def store(self):
-        self.sessions.store(self.session_id, self.state_id, self.secure_token, self.use_same_state, self.data)
+        state_id = self.previous_state_id if self.use_same_state else self.state_id
+        self.sessions.store(self.session_id, state_id, self.secure_token, self.use_same_state, self.data)
 
     @contextmanager
     def enter(self):
@@ -149,13 +150,20 @@ class SessionService(plugin.Plugin):
                 self.set_session_cookie(request, response, session.session_id)
                 self.set_secure_cookie(request, response, session.secure_token)
 
-                return self._handle_request(
+                response = self._handle_request(
                     chain,
                     request=request, response=response,
-                    session_id=session.session_id, state_id=session.state_id,
+                    session_id=session.session_id,
+                    previous_state_id=session.previous_state_id,
+                    state_id=session.state_id,
                     session=data, callbacks=callbacks,
                     **params
                 )
+
+                use_same_state = use_same_state or getattr(response, 'use_same_state', False)
+                session.use_same_state = use_same_state or not self.states_history
+
+                return response
         except exceptions.SessionError:
             response = request.create_redirect_response()
 
