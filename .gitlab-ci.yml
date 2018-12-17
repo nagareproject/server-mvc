@@ -11,7 +11,14 @@
 
 image: docker-registry.net-ng.com/nng/dind-ubuntu:7
 
-tests:
+tests2:
   script:
-    - pip2 install flake8
+    - pip2 install flake8 pytest .
     - flake8 nagare
+    - pytest
+
+tests3:
+  script:
+  - pip3 install flake8 pytest .
+  - flake8 nagare
+  - pytest
