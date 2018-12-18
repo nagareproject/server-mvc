@@ -21,7 +21,7 @@ class PresentationService(plugin.Plugin):
 
         self.canonical_url = canonical_url
 
-    def merge_head(self, h, head, html):
+    def merge_head(self, request, h, head, html):
         html2 = h.html(html)
         html = html2.find('html')
         if html is None:
@@ -47,8 +47,8 @@ class PresentationService(plugin.Plugin):
             head = h.head.head(head)
 
         if self.canonical_url and not head.xpath('./link[@rel="canonical"]'):
-            url = h.request.upath_info.strip('/')
-            url = h.request.uscript_name + ('/' if url else '') + url
+            url = request.upath_info.strip('/')
+            url = request.uscript_name + ('/' if url else '') + url
             head.append(h.head.link(rel='canonical', href=url))
 
         head2.attrib.update(head.attrib)
@@ -82,7 +82,7 @@ class PresentationService(plugin.Plugin):
         body = h.root if render is None else render(h)
 
         if not request.is_xhr and ('html' in response.content_type):
-            body = self.merge_head(h, h.head.render(), body)
+            body = self.merge_head(request, h, h.head.render(), body)
 
         response.body = self.serialize(body, response.doctype, not request.is_xhr, True)
 
