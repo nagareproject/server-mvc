@@ -7,6 +7,8 @@
 # this distribution.
 # --
 
+import types
+
 from lxml import etree
 
 from nagare.services import plugin
@@ -56,13 +58,22 @@ class PresentationService(plugin.Plugin):
 
         return html
 
-    def serialize(self, output, doctype='', declaration=False, pretty_print=False):
+    def serialize(self, output, encoding='utf-8', doctype=None, pretty_print=False):
         if isinstance(output, etree.ElementBase):
             output.attrib.pop('xmlns', None)
-            output = output.tostring(pretty_print=pretty_print, doctype=doctype if declaration else None)
+            output = output.tostring(encoding=encoding, pretty_print=pretty_print, doctype=doctype)
 
         elif isinstance(output, type(u'')):
-            output = output.encode('utf-8')
+            output = output.encode(encoding)
+
+        elif isinstance(output, (list, tuple, types.GeneratorType)):
+            elements = list(output)
+            with_doctype = any(isinstance(element, (etree.ElementBase, etree._Element)) for element in elements)
+            output = ((doctype + '\n') if doctype and with_doctype else '').encode(encoding)
+            output += b''.join(self.serialize(element, encoding) for element in elements)
+
+        elif isinstance(output, etree._Element):
+            output = etree.tostring(output, encoding=encoding, pretty_print=pretty_print, doctype=doctype)
 
         return output
 
@@ -84,6 +95,11 @@ class PresentationService(plugin.Plugin):
         if not request.is_xhr and ('html' in response.content_type):
             body = self.merge_head(request, h, h.head.render(), body)
 
-        response.body = self.serialize(body, response.doctype, not request.is_xhr, True)
+        response.body = self.serialize(
+            body,
+            encoding=response.charset or response.default_body_encoding,
+            doctype=response.doctype if not request.is_xhr else None,
+            pretty_print=True
+        )
 
         return response
