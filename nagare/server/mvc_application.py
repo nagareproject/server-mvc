@@ -51,7 +51,7 @@ class App(http_application.RESTApp):
         self.static_path = static.rstrip('/')
 
         if self.static_url:
-            statics_service.register(self.static_url, self.static_path)
+            statics_service.register_dir(self.static_url, self.static_path)
 
         if reloader_service is not None:
             reloader_service.watch_dir(self.static_path, livereload, recursive=True, url=self.static_url)
