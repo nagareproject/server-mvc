@@ -7,12 +7,22 @@
 # this distribution.
 # --
 
+import sys
+
+try:
+    import copy_reg as copyreg
+except ImportError:
+    import copyreg
+
 try:
     from cStringIO import StringIO as BuffIO
 except ImportError:
     from io import BytesIO as BuffIO
 
 from .exceptions import StateError
+
+
+PY2 = (sys.version_info.major == 2)
 
 
 class DummyFile(object):
@@ -30,7 +40,8 @@ class Dummy(object):
         """
         self.pickler = pickler
         self.unpickler = unpickler
-        self.persistent_id = lambda o, clean_callbacks, callbacks, session_data, tasklets: None
+        self.persistent_id = None
+        self.dispatch_table = lambda *args: {}
 
     def _dumps(self, pickler, data, clean_callbacks):
         """Serialize an objects graph
@@ -49,8 +60,20 @@ class Dummy(object):
         callbacks = {}
 
         # Serialize the objects graph and extract all the callbacks
-        # pickler.inst_persistent_id = lambda o: persistent_id(o, clean_callbacks, callbacks, session_data, tasklets)
-        pickler.persistent_id = lambda o: self.persistent_id(o, clean_callbacks, callbacks, session_data, tasklets)
+        def persistent_id(o):
+            return self.persistent_id(o, clean_callbacks, callbacks, session_data, tasklets)
+
+        if PY2:
+            if self.persistent_id:
+                pickler.inst_persistent_id = persistent_id
+        else:
+            if self.persistent_id:
+                pickler.persistent_id = persistent_id
+
+            dispatch_table = copyreg.dispatch_table.copy()
+            dispatch_table.update(self.dispatch_table(clean_callbacks, callbacks))
+            pickler.dispatch_table = dispatch_table
+
         pickler.dump(data)
 
         return session_data, callbacks, tasklets
@@ -100,12 +123,15 @@ class Pickle(Dummy):
         """
         f = BuffIO()
         pickler = self.pickler(f, protocol=-1)
+
         # Pickle the data
         session_data, callbacks, tasklets = self._dumps(pickler, data, clean_callbacks)
 
         # Pickle the callbacks
-        # pickler.inst_persistent_id = lambda o: None
-        pickler.persistent_id = lambda o: None
+        if PY2:
+            pickler.inst_persistent_id = lambda o: None
+        else:
+            pickler.persistent_id = lambda o: None
         pickler.dump(callbacks)
 
         # Kill all the blocked tasklets, which are now serialized

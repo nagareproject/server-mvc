@@ -15,8 +15,8 @@ from nagare.sessions import exceptions
 
 
 class Session(object):
-    def __init__(self, sessions_service, is_new, secure_token, session_id, state_id, use_same_state):
-        self.sessions = sessions_service
+    def __init__(self, session_service, is_new, secure_token, session_id, state_id, use_same_state):
+        self.session = session_service
         self.is_new = is_new
         self.secure_token = secure_token
         self.session_id = session_id
@@ -26,17 +26,17 @@ class Session(object):
         self.data = {}
 
     def get_lock(self):
-        return self.sessions.get_lock(self.session_id)
+        return self.session.get_lock(self.session_id)
 
     def create(self):
-        self.session_id, self.state_id, self.secure_token, lock = self.sessions.create(self.secure_token)
+        self.session_id, self.state_id, self.secure_token, lock = self.session.create(self.secure_token)
         return lock
 
     def fetch(self):
         if self.is_new:
             callbacks = {}
         else:
-            new_state_id, self.secure_token, data = self.sessions.fetch(self.session_id, self.state_id)
+            new_state_id, self.secure_token, data = self.session.fetch(self.session_id, self.state_id)
             if not self.use_same_state:
                 self.state_id, self.previous_state_id = new_state_id, self.state_id
             self.data, callbacks = data
@@ -45,7 +45,7 @@ class Session(object):
 
     def store(self):
         state_id = self.previous_state_id if self.use_same_state else self.state_id
-        self.sessions.store(self.session_id, state_id, self.secure_token, self.use_same_state, self.data)
+        self.session.store(self.session_id, state_id, self.secure_token, self.use_same_state, self.data)
 
     @contextmanager
     def enter(self):
@@ -82,7 +82,7 @@ class SessionService(plugin.Plugin):
         name, dist,
         states_history,
         session_cookie, security_cookie,
-        local_service, sessions_service
+        local_service, session_service
     ):
         super(SessionService, self).__init__(name, dist)
 
@@ -91,7 +91,7 @@ class SessionService(plugin.Plugin):
         self.session_cookie = session_cookie
         self.security_cookie = security_cookie
         self.local = local_service
-        self.sessions = sessions_service.service
+        self.session = session_service.service
 
     def set_cookie(self, request, response, name, data, **config):
         if name:
@@ -139,7 +139,7 @@ class SessionService(plugin.Plugin):
         new_session, session_id, state_id = self.get_state_ids(request)
         use_same_state = request.is_xhr or not self.states_history
         secure_token = self.extract_secure_token(request)
-        session = Session(self.sessions, new_session, secure_token, session_id, state_id, use_same_state)
+        session = Session(self.session, new_session, secure_token, session_id, state_id, use_same_state)
 
         try:
             with session.enter() as (data, callbacks):

@@ -60,6 +60,9 @@ class Sessions(plugin.Plugin):
     def set_persistent_id(self, persistent_id):
         self.serializer.persistent_id = persistent_id
 
+    def set_dispatch_table(self, dispatch_table):
+        self.serializer.dispatch_table = dispatch_table
+
     @staticmethod
     def generate_id():
         return random.randint(1000000000000000, 9999999999999999)
@@ -200,12 +203,12 @@ class Sessions(plugin.Plugin):
 
 
 class SessionsSelection(SelectionService):
-    LOAD_PRIORITY = 90
+    ENTRY_POINTS = 'nagare.sessions'
     CONFIG_SPEC = dict(
         SelectionService.CONFIG_SPEC,
-        type='string(default="memory")'
+        type='string(default="memory", help="name of the session entry-point, registered under [nagare.sessions]")'
     )
-    ENTRY_POINTS = 'nagare.sessions'
+    LOAD_PRIORITY = 90
 
     def _load_plugin(self, name, dist, plugin_cls, initial_config, config, *args, **kw):
         service, config = super(SessionsSelection, self)._load_plugin(
@@ -219,6 +222,9 @@ class SessionsSelection(SelectionService):
 
     def set_persistent_id(self, persistent_id):
         self.service.set_persistent_id(persistent_id)
+
+    def set_dispatch_table(self, dispatch_table):
+        self.service.set_dispatch_table(dispatch_table)
 
     @property
     def DESC(self):
