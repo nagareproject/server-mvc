@@ -34,7 +34,7 @@ setup(
     entry_points='''
         [nagare.services]
         state = nagare.services.http_session:SessionService
-        sessions = nagare.sessions.common:SessionsSelection
+        session = nagare.sessions.common:SessionsSelection
         presentation = nagare.services.presentation:PresentationService
     '''
 )

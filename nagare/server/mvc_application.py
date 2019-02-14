@@ -10,7 +10,7 @@
 # --
 
 from nagare.renderers import html5_base
-from nagare.server import http_application
+from nagare.server.http_application import Request, Response, RESTApp  # noqa: F401
 
 
 def livereload(reloader, dirname, filename, url):
@@ -22,10 +22,10 @@ def livereload(reloader, dirname, filename, url):
 # ---------------------------------------------------------------------------
 
 
-class App(http_application.RESTApp):
+class App(RESTApp):
     """Application to handle a HTTP request"""
     CONFIG_SPEC = dict(
-        http_application.RESTApp.CONFIG_SPEC,
+        RESTApp.CONFIG_SPEC,
         default_content_type='string(default="text/html")',
         static_url='string(default="/static")',
         static='string(default="$static_path")'
