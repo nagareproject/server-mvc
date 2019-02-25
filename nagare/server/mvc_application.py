@@ -29,7 +29,6 @@ class App(RESTApp):
         default_content_type='string(default="text/html")',
         static_url='string(default="/static")',
         static='string(default="$static_path")'
-
     )
     renderer_factory = html5_base.Renderer
 
@@ -49,12 +48,17 @@ class App(RESTApp):
 
         self.static_url = static_url.rstrip('/')
         self.static_path = static.rstrip('/')
+        self.statics_services = statics_service
+        self.reloader_service = reloader_service
+
+    def handle_start(self):
+        super(App, self).handle_start()
 
         if self.static_url:
-            statics_service.register_dir(self.static_url, self.static_path)
+            self.statics_service.register_dir(self.static_url, self.static_path)
 
-        if reloader_service is not None:
-            reloader_service.watch_dir(self.static_path, livereload, recursive=True, url=self.static_url)
+        if self.reloader_service is not None:
+            self.reloader_service.watch_dir(self.static_path, livereload, recursive=True, url=self.static_url)
 
     def create_renderer(self, *args, **params):
         """Create the initial renderer

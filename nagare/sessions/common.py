@@ -210,6 +210,13 @@ class SessionsSelection(SelectionService):
     )
     LOAD_PRIORITY = 90
 
+    @property
+    def DESC(self):
+        return 'Proxy to the <%s> sessions manager' % self.type
+
+    def handle_reload(self):
+        self.service.handle_reload()
+
     def _load_plugin(self, name, dist, plugin_cls, initial_config, config, *args, **kw):
         service, config = super(SessionsSelection, self)._load_plugin(
             name, dist,
@@ -225,7 +232,3 @@ class SessionsSelection(SelectionService):
 
     def set_dispatch_table(self, dispatch_table):
         self.service.set_dispatch_table(dispatch_table)
-
-    @property
-    def DESC(self):
-        return 'Proxy to the <%s> sessions manager' % self.type
