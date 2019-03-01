@@ -22,7 +22,6 @@ class Publisher(http_publisher.Publisher):
     def __init__(self, name, dist, open_on_start, **config):
         super(Publisher, self).__init__(name, dist, **config)
         self.open_on_start = open_on_start
-        self.toto = False
 
     def launch_browser(self):
         is_url, endpoint = self.endpoint

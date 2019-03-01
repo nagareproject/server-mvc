@@ -57,15 +57,18 @@ class Sessions(plugin.Plugin):
         serializer = reference.load_object(serializer)[0] if isinstance(serializer, str) else serializer
         self.serializer = serializer(pickler, unpickler)
 
+    @staticmethod
+    def generate_id():
+        return random.randint(1000000000000000, 9999999999999999)
+
+    def handle_reload(self):
+        pass
+
     def set_persistent_id(self, persistent_id):
         self.serializer.persistent_id = persistent_id
 
     def set_dispatch_table(self, dispatch_table):
         self.serializer.dispatch_table = dispatch_table
-
-    @staticmethod
-    def generate_id():
-        return random.randint(1000000000000000, 9999999999999999)
 
     def generate_secure_token(self):
         return b'%d' % self.generate_id()
