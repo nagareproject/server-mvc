@@ -30,7 +30,8 @@ class Sessions(plugin.Plugin):
         # Todo: configurable picker
         # pickler=string(default="cPickle:Pickler")',
         # unpickler='string(default="cPickle:Unpickler")',
-        serializer='string(default="nagare.sessions.serializer:Dummy")'
+        serializer='string(default="nagare.sessions.serializer:Dummy")',
+        reset_on_reload='boolean(default=True)'
     )
 
     def __init__(
@@ -38,6 +39,7 @@ class Sessions(plugin.Plugin):
         name, dist,
         pickler=cPickle.Pickler, unpickler=cPickle.Unpickler,
         serializer=serializer.Dummy,
+        reset_on_reload=True,
         publisher_service=None
     ):
         """Initialization
@@ -57,12 +59,18 @@ class Sessions(plugin.Plugin):
         serializer = reference.load_object(serializer)[0] if isinstance(serializer, str) else serializer
         self.serializer = serializer(pickler, unpickler)
 
+        self.reset_on_reload = reset_on_reload
+
     @staticmethod
     def generate_id():
         return random.randint(1000000000000000, 9999999999999999)
 
-    def handle_reload(self):
+    def reload(self):
         pass
+
+    def handle_reload(self):
+        if self.reset_on_reload:
+            self.reload()
 
     def set_persistent_id(self, persistent_id):
         self.serializer.persistent_id = persistent_id
