@@ -28,7 +28,7 @@ class App(RESTApp):
         RESTApp.CONFIG_SPEC,
         default_content_type='string(default="text/html")',
         static_url='string(default="/static")',
-        static='string(default="$static_path")'
+        static='string(default="$_static_path")'
     )
     renderer_factory = html5_base.Renderer
 

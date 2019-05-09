@@ -33,8 +33,6 @@ setup(
     install_requires=['nagare-services', 'nagare-renderers-html', 'nagare-server-http'],
     entry_points='''
         [nagare.services]
-        state = nagare.services.http_session:SessionService
-        session = nagare.sessions.common:SessionsSelection
         presentation = nagare.services.presentation:PresentationService
     '''
 )
