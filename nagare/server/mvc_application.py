@@ -27,38 +27,25 @@ class App(RESTApp):
     CONFIG_SPEC = dict(
         RESTApp.CONFIG_SPEC,
         default_content_type='string(default="text/html")',
-        static_url='string(default="/static")',
+        static_url='string(default="/static/$app_name")',
         static='string(default="$_static_path")'
     )
     renderer_factory = html5_base.Renderer
 
-    def __init__(
-        self,
-        name, dist,
-        static_url, static,
-        statics_service, services_service, reloader_service=None,
-        **config
-    ):
-        """Initialization
-
-        In:
-          - ``services_service`` -- the services repository
-        """
+    def __init__(self, name, dist, static_url, static, services_service, **config):
         services_service(super(App, self).__init__, name, dist, **config)
 
         self.static_url = static_url.rstrip('/')
         self.static_path = static.rstrip('/')
-        self.statics_services = statics_service
-        self.reloader_service = reloader_service
 
-    def handle_start(self):
-        super(App, self).handle_start()
+    def handle_start(self, app, services_service, statics_service, reloader_service=None):
+        services_service(super(App, self).handle_start, app)
 
         if self.static_url:
-            self.statics_service.register_dir(self.static_url, self.static_path)
+            statics_service.register_dir(self.static_url, self.static_path)
 
-        if self.reloader_service is not None:
-            self.reloader_service.watch_dir(self.static_path, livereload, recursive=True, url=self.static_url)
+        if reloader_service is not None:
+            reloader_service.watch_dir(self.static_path, livereload, recursive=True, url=self.static_url)
 
     def create_renderer(self, *args, **params):
         """Create the initial renderer
