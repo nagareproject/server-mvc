@@ -13,7 +13,7 @@ from nagare.renderers import html5_base
 from nagare.server.http_application import Request, Response, RESTApp  # noqa: F401
 
 
-def livereload(reloader, dirname, filename, url):
+def livereload(dirname, filename, _, reloader, url):
     if filename.endswith(('.css', '.js', '.gif', '.png', '.jpeg', '.jpg')):
         reloader.reload_asset(url + '/' + filename)
 
@@ -44,7 +44,7 @@ class App(RESTApp):
         if self.static_url:
             statics_service.register_dir(self.static_url, self.static_path)
 
-        if reloader_service is not None:
+        if (reloader_service is not None) and (self.static_path):
             reloader_service.watch_dir(self.static_path, livereload, recursive=True, url=self.static_url)
 
     def create_renderer(self, *args, **params):
