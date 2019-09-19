@@ -16,13 +16,18 @@ from nagare.services import plugin
 
 
 class PresentationService(plugin.Plugin):
-    CONFIG_SPEC = dict(plugin.Plugin.CONFIG_SPEC, canonical_url='boolean(default=True)')
+    CONFIG_SPEC = dict(
+        plugin.Plugin.CONFIG_SPEC,
+        canonical_url='boolean(default=True)',
+        frame_options='string(default="deny")'
+    )
     LOAD_PRIORITY = 130
 
-    def __init__(self, name, dist, canonical_url):
+    def __init__(self, name, dist, canonical_url, frame_options):
         super(PresentationService, self).__init__(name, dist)
 
         self.canonical_url = canonical_url
+        self.frame_options = frame_options.upper()
 
     def merge_head(self, request, h, head, html):
         html2 = h.html(html)
@@ -98,6 +103,7 @@ class PresentationService(plugin.Plugin):
 
         if not request.is_xhr and ('html' in response.content_type):
             body = self.merge_head(request, h, h.head.render(), body)
+            response.headers.setdefault('X-Frame-Options', self.frame_options)
 
         response.body = self.serialize(
             body,
