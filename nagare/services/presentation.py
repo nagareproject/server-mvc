@@ -23,7 +23,7 @@ class PresentationService(plugin.Plugin):
     )
     LOAD_PRIORITY = 130
 
-    def __init__(self, name, dist, canonical_url, frame_options):
+    def __init__(self, name, dist, canonical_url=True, frame_options='deny'):
         super(PresentationService, self).__init__(name, dist)
 
         self.canonical_url = canonical_url
