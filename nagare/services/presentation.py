@@ -29,7 +29,7 @@ class PresentationService(plugin.Plugin):
         self.canonical_url = canonical_url
         self.frame_options = frame_options.upper()
 
-    def merge_head(self, request, h, head, html):
+    def merge_head(self, request, h, head, bottom, html):
         html2 = h.html(html)
         html = html2.find('html')
         if html is None:
@@ -61,6 +61,8 @@ class PresentationService(plugin.Plugin):
 
         head2.attrib.update(head.attrib)
         head2(head[:])
+
+        html[1](bottom)
 
         return html
 
@@ -102,7 +104,7 @@ class PresentationService(plugin.Plugin):
         body = h.root if render is None else render(h)
 
         if not request.is_xhr and ('html' in response.content_type):
-            body = self.merge_head(request, h, h.head.render(), body)
+            body = self.merge_head(request, h, h.head.render_top(), h.head.render_bottom(), body)
             response.headers.setdefault('X-Frame-Options', self.frame_options)
 
         response.body = self.serialize(
