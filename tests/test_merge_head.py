@@ -22,7 +22,7 @@ def create_presentation(canonical_url):
 
 
 def merge_head(presentation_service, request, h):
-    return presentation_service.merge_head(request, h, h.head.root, h.root).tostring()
+    return presentation_service.merge_head(request, h, h.head.root, '', h.root).tostring()
 
 
 def test_1():

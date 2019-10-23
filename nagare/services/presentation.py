@@ -62,7 +62,7 @@ class PresentationService(plugin.Plugin):
         head2.attrib.update(head.attrib)
         head2(head[:])
 
-        html[1](bottom)
+        html.find('body')(bottom)
 
         return html
 
