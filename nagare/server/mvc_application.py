@@ -1,7 +1,7 @@
 # Encoding: utf-8
 
 # --
-# Copyright (c) 2008-2019 Net-ng.
+# Copyright (c) 2008-2020 Net-ng.
 # All rights reserved.
 #
 # This software is licensed under the BSD License, as described in
@@ -33,7 +33,12 @@ class App(RESTApp):
     renderer_factory = html5_base.Renderer
 
     def __init__(self, name, dist, static_url, static, services_service, **config):
-        services_service(super(App, self).__init__, name, dist, **config)
+        services_service(
+            super(App, self).__init__,
+            name, dist,
+            static_url=static_url, static=static,
+            **config
+        )
 
         self.static_url = static_url.rstrip('/')
         self.static_path = static.rstrip('/')
