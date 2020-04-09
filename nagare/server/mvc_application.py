@@ -63,5 +63,5 @@ class App(RESTApp):
     def create_dispatch_args(self, renderer, **params):
         return super(App, self).create_dispatch_args(**params) + (renderer,)
 
-    def set_body(self, response, body):
+    def set_response_body(self, response, body):
         return response
