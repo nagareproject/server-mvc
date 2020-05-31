@@ -27,7 +27,7 @@ class App(RESTApp):
     CONFIG_SPEC = dict(
         RESTApp.CONFIG_SPEC,
         default_content_type='string(default="text/html")',
-        static_url='string(default="/static/$app_name")',
+        static_url='string(default="/static$app_url")',
         static='string(default="$_static_path")'
     )
     renderer_factory = html5_base.Renderer

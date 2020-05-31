@@ -10,7 +10,7 @@
 import types
 
 from lxml import etree
-from webob import exc, Response
+from webob import Response
 
 from nagare.services import plugin
 
@@ -91,7 +91,7 @@ class PresentationService(plugin.Plugin):
 
     def handle_request(self, chain, app, request, response, render=None, **params):
         if not request.path_info:
-            raise exc.HTTPMovedPermanently(add_slash=True)
+            raise request.create_redirect_response()
 
         h = app.create_renderer(request=request, response=response, **params)
 
