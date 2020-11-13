@@ -7,6 +7,8 @@
 # this distribution.
 # --
 
+from lxml import etree
+
 import webob
 from nagare.renderers import html_base as html
 
@@ -22,7 +24,11 @@ def create_presentation(canonical_url):
 
 
 def merge_head(presentation_service, request, h):
-    return presentation_service.merge_head(request, h, h.head.root, '', h.root).tostring()
+    output = presentation_service.merge_head(request, h, h.head.render_top(), h.head.render_bottom(), h.root)
+    if isinstance(output, list):
+        return [etree.tostring(tag) if etree.iselement(tag) else str(tag).encode('utf-8') for tag in output]
+    else:
+        return output.tostring()
 
 
 def test_1():
@@ -215,9 +221,9 @@ def test_18():
     p = create_presentation(False)
     h = html.Renderer()
 
-    h << h.html << 'hello'
+    h << h.html(id='foo') << 'hello'
 
-    assert merge_head(p, r, h) == b'<html><head></head><body></body></html>'
+    assert merge_head(p, r, h) == [b'<html id="foo"><head/><body/></html>', b'hello']
 
 
 def test_19():
@@ -226,7 +232,7 @@ def test_19():
     h = html.Renderer()
 
     h << h.comment('c1') << h.html << 'hello' << h.comment('c2')
-    assert merge_head(p, r, h) == b'<html><head></head><body></body></html>'
+    assert merge_head(p, r, h) == [b'<!--c1-->', b'<html><head/><body/></html>', b'hello', b'<!--c2-->']
 
 
 def test_20():
@@ -443,8 +449,118 @@ def test_39():
     h = html.Renderer()
 
     h << h.processing_instruction('hello') << h.html(h.p('foo'))
+    assert merge_head(p, r, h) == [b'<?hello ?>', b'<html><head/><body><p>foo</p></body></html>']
 
-    assert merge_head(p, r, h) == b'<html><head></head><body><p>foo</p></body></html>'
+
+def test_40():
+    r = create_request('/a', '/b')
+    p = create_presentation(False)
+    h = html.Renderer()
+
+    h << h.html(h.p('foo'), id='html')
+    assert merge_head(p, r, h) == b'<html id="html"><head></head><body><p>foo</p></body></html>'
+
+
+def test_41():
+    r = create_request('/a', '/b')
+    p = create_presentation(False)
+    h = html.Renderer()
+
+    h << h.html(h.head.head(h.head.title, id='head'), h.p('foo'), id='html')
+    assert merge_head(p, r, h) == b'<html id="html"><head id="head"><title></title></head><body><p>foo</p></body></html>'
+
+    r = create_request('/a', '/b')
+    p = create_presentation(False)
+    h = html.Renderer()
+    h.head.javascript_url('/foo.js')
+
+    h << h.html(h.head.head(h.head.title, id='head'), h.p('foo'), id='html')
+    assert merge_head(p, r, h) == b'<html id="html"><head id="head"><title></title><script type="text/javascript" src="/foo.js"></script></head><body><p>foo</p></body></html>'
+
+
+def test_42():
+    r = create_request('/a', '/b')
+    p = create_presentation(False)
+    h = html.Renderer()
+
+    h << h.html(h.body(h.p('foo'), id="body"), id='html')
+    assert merge_head(p, r, h) == b'<html id="html"><head></head><body id="body"><p>foo</p></body></html>'
+
+    r = create_request('/a', '/b')
+    p = create_presentation(False)
+    h = html.Renderer()
+    h.head.javascript_url('/foo.js')
+
+    h << h.html(h.body(h.p('foo'), id="body"), id='html')
+    assert merge_head(p, r, h) == b'<html id="html"><head><script type="text/javascript" src="/foo.js"></script></head><body id="body"><p>foo</p></body></html>'
+
+
+def test_43():
+    r = create_request('/a', '/b')
+    p = create_presentation(False)
+    h = html.Renderer()
+
+    h << h.html(h.head.head(h.head.title, id='head'), h.body(h.p('foo'), id="body"), id='html')
+    assert merge_head(p, r, h) == b'<html id="html"><head id="head"><title></title></head><body id="body"><p>foo</p></body></html>'
+
+    r = create_request('/a', '/b')
+    p = create_presentation(False)
+    h = html.Renderer()
+    h.head.javascript_url('/foo.js')
+
+    h << h.html(h.head.head(h.head.title, id='head'), h.body(h.p('foo'), id="body"), id='html')
+    assert merge_head(p, r, h) == b'<html id="html"><head id="head"><title></title><script type="text/javascript" src="/foo.js"></script></head><body id="body"><p>foo</p></body></html>'
+
+
+def test_44():
+    r = create_request('/a', '/b')
+    p = create_presentation(False)
+    h = html.Renderer()
+
+    h << [h.head.head(h.head.title, id='head'), h.p('foo')]
+    assert merge_head(p, r, h) == b'<html><head id="head"><title></title></head><body><p>foo</p></body></html>'
+
+    r = create_request('/a', '/b')
+    p = create_presentation(False)
+    h = html.Renderer()
+    h.head.javascript_url('/foo.js')
+
+    h << [h.head.head(h.head.title, id='head'), h.p('foo')]
+    assert merge_head(p, r, h) == b'<html><head id="head"><title></title><script type="text/javascript" src="/foo.js"></script></head><body><p>foo</p></body></html>'
+
+
+def test_45():
+    r = create_request('/a', '/b')
+    p = create_presentation(False)
+    h = html.Renderer()
+
+    h << [h.head.head(h.head.title, id='head'), h.body(h.p('foo'), id="body")]
+    assert merge_head(p, r, h) == b'<html><head id="head"><title></title></head><body id="body"><p>foo</p></body></html>'
+
+    r = create_request('/a', '/b')
+    p = create_presentation(False)
+    h = html.Renderer()
+    h.head.javascript_url('/foo.js')
+
+    h << [h.head.head(h.head.title, id='head'), h.body(h.p('foo'), id="body")]
+    assert merge_head(p, r, h) == b'<html><head id="head"><title></title><script type="text/javascript" src="/foo.js"></script></head><body id="body"><p>foo</p></body></html>'
+
+
+def test_46():
+    r = create_request('/a', '/b')
+    p = create_presentation(False)
+    h = html.Renderer()
+
+    h << h.body(h.p('foo'), id="body")
+    assert merge_head(p, r, h) == b'<html><head></head><body id="body"><p>foo</p></body></html>'
+
+    r = create_request('/a', '/b')
+    p = create_presentation(False)
+    h = html.Renderer()
+    h.head.javascript_url('/foo.js')
+
+    h << h.body(h.p('foo'), id="body")
+    assert merge_head(p, r, h) == b'<html><head><script type="text/javascript" src="/foo.js"></script></head><body id="body"><p>foo</p></body></html>'
 
 
 def test_canonical():

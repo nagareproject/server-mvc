@@ -34,41 +34,43 @@ class PresentationService(plugin.Plugin):
         self.frame_options = frame_options.upper()
 
     def merge_head(self, request, h, head, bottom, html):
-        html2 = h.html(html)
-        html = html2.find('html')
-        if html is None:
-            html = html2
+        root = h.html(html)
+        existing_html = [tag for tag in root if isinstance(tag, etree.ElementBase) and tag.tag == 'html']
+        if len(existing_html) == 1:
+            root = html
+            html = existing_html[0]
+        else:
+            html = root
 
         html.tail = None
 
-        head2 = html.find('head')
-        if head2 is None:
-            if html.find('body') is None:
-                html.tag = 'body'
-                html = h.html(html)
-
-            head2 = h.head.head
-            html.insert(0, head2)
+        existing_head = html.find('head')
+        if existing_head is None:
+            existing_head = h.head.head
+            html.insert(0, existing_head)
+            i = 1
         else:
-            if html.find('body') is None:
-                i = html.index(head2)
-                html(h.body(head2.tail or '', html[i + 1:]))
-                head2.tail = None
+            i = html.index(existing_head) + 1
 
-        if not isinstance(head, etree.ElementBase) or (head.tag != 'head'):
-            head = h.head.head(head)
+        existing_body = [tag for tag in html[i:] if isinstance(tag, etree.ElementBase) and tag.tag == 'body']
+        if len(existing_body) == 1:
+            body = existing_body[0]
+        else:
+            body = h.body(existing_head.tail or '', html.text or '', html[i:])
+            existing_head.tail = html.text = None
+            html.append(body)
 
         if self.canonical_url and not head.xpath('./link[@rel="canonical"]'):
             url = request.upath_info.strip('/')
             url = request.uscript_name + ('/' if url else '') + url
             head.append(h.head.link(rel='canonical', href=url))
 
-        head2.attrib.update(head.attrib)
-        head2(head[:])
+        existing_head.attrib.update(head.attrib)
+        existing_head(head[:])
 
-        html.find('body')(bottom)
+        body(bottom)
 
-        return html
+        return root
 
     def serialize(self, output, encoding='utf-8', doctype=None, pretty_print=False):
         if isinstance(output, etree.ElementBase):
