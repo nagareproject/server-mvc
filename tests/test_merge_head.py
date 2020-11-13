@@ -475,7 +475,9 @@ def test_41():
     h.head.javascript_url('/foo.js')
 
     h << h.html(h.head.head(h.head.title, id='head'), h.p('foo'), id='html')
-    assert merge_head(p, r, h) == b'<html id="html"><head id="head"><title></title><script type="text/javascript" src="/foo.js"></script></head><body><p>foo</p></body></html>'
+    result = merge_head(p, r, h)
+    assert result == b'<html id="html"><head id="head"><title></title><script type="text/javascript" src="/foo.js"></script></head><body><p>foo</p></body></html>' \
+        or result == b'<html id="html"><head id="head"><title></title><script src="/foo.js" type="text/javascript"></script></head><body><p>foo</p></body></html>'
 
 
 def test_42():
@@ -492,7 +494,9 @@ def test_42():
     h.head.javascript_url('/foo.js')
 
     h << h.html(h.body(h.p('foo'), id="body"), id='html')
-    assert merge_head(p, r, h) == b'<html id="html"><head><script type="text/javascript" src="/foo.js"></script></head><body id="body"><p>foo</p></body></html>'
+    result = merge_head(p, r, h)
+    assert result == b'<html id="html"><head><script type="text/javascript" src="/foo.js"></script></head><body id="body"><p>foo</p></body></html>' \
+        or result == b'<html id="html"><head><script src="/foo.js" type="text/javascript"></script></head><body id="body"><p>foo</p></body></html>'
 
 
 def test_43():
@@ -509,7 +513,9 @@ def test_43():
     h.head.javascript_url('/foo.js')
 
     h << h.html(h.head.head(h.head.title, id='head'), h.body(h.p('foo'), id="body"), id='html')
-    assert merge_head(p, r, h) == b'<html id="html"><head id="head"><title></title><script type="text/javascript" src="/foo.js"></script></head><body id="body"><p>foo</p></body></html>'
+    result = merge_head(p, r, h)
+    assert result == b'<html id="html"><head id="head"><title></title><script type="text/javascript" src="/foo.js"></script></head><body id="body"><p>foo</p></body></html>' \
+        or result == b'<html id="html"><head id="head"><title></title><script src="/foo.js" type="text/javascript"></script></head><body id="body"><p>foo</p></body></html>'
 
 
 def test_44():
@@ -526,7 +532,9 @@ def test_44():
     h.head.javascript_url('/foo.js')
 
     h << [h.head.head(h.head.title, id='head'), h.p('foo')]
-    assert merge_head(p, r, h) == b'<html><head id="head"><title></title><script type="text/javascript" src="/foo.js"></script></head><body><p>foo</p></body></html>'
+    result = merge_head(p, r, h)
+    assert result == b'<html><head id="head"><title></title><script type="text/javascript" src="/foo.js"></script></head><body><p>foo</p></body></html>' \
+        or result == b'<html><head id="head"><title></title><script src="/foo.js" type="text/javascript"></script></head><body><p>foo</p></body></html>'
 
 
 def test_45():
@@ -543,7 +551,9 @@ def test_45():
     h.head.javascript_url('/foo.js')
 
     h << [h.head.head(h.head.title, id='head'), h.body(h.p('foo'), id="body")]
-    assert merge_head(p, r, h) == b'<html><head id="head"><title></title><script type="text/javascript" src="/foo.js"></script></head><body id="body"><p>foo</p></body></html>'
+    result = merge_head(p, r, h)
+    assert result == b'<html><head id="head"><title></title><script type="text/javascript" src="/foo.js"></script></head><body id="body"><p>foo</p></body></html>' \
+        or result == b'<html><head id="head"><title></title><script src="/foo.js" type="text/javascript"></script></head><body id="body"><p>foo</p></body></html>'
 
 
 def test_46():
@@ -560,7 +570,9 @@ def test_46():
     h.head.javascript_url('/foo.js')
 
     h << h.body(h.p('foo'), id="body")
-    assert merge_head(p, r, h) == b'<html><head><script type="text/javascript" src="/foo.js"></script></head><body id="body"><p>foo</p></body></html>'
+    result = merge_head(p, r, h)
+    assert result == b'<html><head><script type="text/javascript" src="/foo.js"></script></head><body id="body"><p>foo</p></body></html>' \
+        or result == b'<html><head><script src="/foo.js" type="text/javascript"></script></head><body id="body"><p>foo</p></body></html>'
 
 
 def test_canonical():
