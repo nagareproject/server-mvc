@@ -107,7 +107,10 @@ class PresentationService(plugin.Plugin):
         response.content_type = h.content_type
         response.doctype = h.doctype
 
-        body = h.root if render is None else render(h)
+        if render:
+            body = render(h)
+        else:
+            body = response if response.body or response.text else h.root
 
         if isinstance(body, Response):
             response = body
