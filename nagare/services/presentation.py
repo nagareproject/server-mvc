@@ -114,7 +114,8 @@ class PresentationService(plugin.Plugin):
         else:
             if not request.is_xhr and ('html' in response.content_type):
                 body = self.merge_head(request, h, h.head.render_top(), h.head.render_bottom(), body)
-                response.headers.setdefault('X-Frame-Options', self.frame_options)
+                if self.frame_options:
+                    response.headers.setdefault('X-Frame-Options', self.frame_options)
 
             response.body = self.serialize(
                 body,
