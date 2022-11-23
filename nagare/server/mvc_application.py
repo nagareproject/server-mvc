@@ -29,25 +29,27 @@ class App(RESTApp):
         default_content_type='string(default="text/html")',
         static_url='string(default="/static$app_url")',
         static='string(default="$_static_path")',
+        gzip_static='boolean(default=True)'
     )
     renderer_factory = html5_base.Renderer
 
-    def __init__(self, name, dist, static_url, static, services_service, **config):
+    def __init__(self, name, dist, static_url, static, gzip_static, services_service, **config):
         services_service(
             super(App, self).__init__,
             name, dist,
-            static_url=static_url, static=static,
+            static_url=static_url, static=static, gzip_static=gzip_static,
             **config
         )
 
         self.static_url = static_url.rstrip('/')
         self.static_path = static.rstrip('/')
+        self.gzip_static = gzip_static
 
     def handle_start(self, app, services_service, statics_service, reloader_service=None):
         services_service(super(App, self).handle_start, app)
 
         if self.static_url:
-            statics_service.register_dir(self.static_url, self.static_path)
+            statics_service.register_dir(self.static_url, self.static_path, self.gzip_static)
 
         if (reloader_service is not None) and (self.static_path):
             reloader_service.watch_dir(
