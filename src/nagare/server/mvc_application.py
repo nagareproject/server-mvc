@@ -1,7 +1,7 @@
 # Encoding: utf-8
 
 # --
-# Copyright (c) 2008-2022 Net-ng.
+# Copyright (c) 2008-2023 Net-ng.
 # All rights reserved.
 #
 # This software is licensed under the BSD License, as described in
@@ -19,26 +19,31 @@ def livereload(event, dirname, filename, reloader, url):
 
     return False
 
+
 # ---------------------------------------------------------------------------
 
 
 class App(RESTApp):
-    """Application to handle a HTTP request"""
+    """Application to handle a HTTP request."""
+
     CONFIG_SPEC = dict(
         RESTApp.CONFIG_SPEC,
         default_content_type='string(default="text/html")',
         static_url='string(default="/static$app_url")',
         static='string(default="$_static_path")',
-        gzip_static='boolean(default=True)'
+        gzip_static='boolean(default=True)',
     )
     renderer_factory = html5_base.Renderer
 
     def __init__(self, name, dist, static_url, static, gzip_static, services_service, **config):
         services_service(
             super(App, self).__init__,
-            name, dist,
-            static_url=static_url, static=static, gzip_static=gzip_static,
-            **config
+            name,
+            dist,
+            static_url=static_url,
+            static=static,
+            gzip_static=gzip_static,
+            **config,
         )
 
         self.static_url = static_url.rstrip('/')
@@ -53,13 +58,11 @@ class App(RESTApp):
 
         if (reloader_service is not None) and (self.static_path):
             reloader_service.watch_dir(
-                self.static_path, livereload, recursive=True,
-                reloader=reloader_service, url=self.static_url
+                self.static_path, livereload, recursive=True, reloader=reloader_service, url=self.static_url
             )
 
     def create_renderer(self, **params):
-        """Create the initial renderer
-        """
+        """Create the initial renderer."""
         return self.renderer_factory(static_url=self.static_url)
 
     def create_dispatch_args(self, renderer, **params):

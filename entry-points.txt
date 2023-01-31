@@ -1,0 +1,2 @@
+[nagare.services]
+presentation = nagare.services.presentation:PresentationService

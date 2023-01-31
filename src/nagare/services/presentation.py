@@ -1,5 +1,5 @@
 # --
-# Copyright (c) 2008-2022 Net-ng.
+# Copyright (c) 2008-2023 Net-ng.
 # All rights reserved.
 #
 # This software is licensed under the BSD License, as described in
@@ -10,24 +10,19 @@
 import types
 
 from lxml import etree
-from webob import Response
-
 from nagare.services import plugin
+from webob import Response
 
 
 class PresentationService(plugin.Plugin):
     CONFIG_SPEC = dict(
-        plugin.Plugin.CONFIG_SPEC,
-        canonical_url='boolean(default=True)',
-        frame_options='string(default="deny")'
+        plugin.Plugin.CONFIG_SPEC, canonical_url='boolean(default=True)', frame_options='string(default="deny")'
     )
     LOAD_PRIORITY = 130
 
     def __init__(self, name, dist, canonical_url=True, frame_options='deny', **config):
         super(PresentationService, self).__init__(
-            name, dist,
-            canonical_url=canonical_url, frame_options=frame_options,
-            **config
+            name, dist, canonical_url=canonical_url, frame_options=frame_options, **config
         )
 
         self.canonical_url = canonical_url
@@ -97,21 +92,12 @@ class PresentationService(plugin.Plugin):
 
         h = app.create_renderer(request=request, response=response, **params)
 
-        response = chain.next(
-            app=app,
-            request=request, response=response,
-            renderer=h,
-            **params
-        )
+        response = chain.next(app=app, request=request, response=response, renderer=h, **params)
 
         response.content_type = h.content_type
         response.doctype = h.doctype
 
-        if render:
-            body = render(h)
-        else:
-            body = response if response.body or response.text else h.root
-
+        body = render(h) if render else (response if response.body or response.text else h.root)
         if isinstance(body, Response):
             response = body
         else:
@@ -124,7 +110,7 @@ class PresentationService(plugin.Plugin):
                 body,
                 encoding=response.charset or response.default_body_encoding,
                 doctype=response.doctype if not request.is_xhr else None,
-                pretty_print=True
+                pretty_print=True,
             )
 
         return response

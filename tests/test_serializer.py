@@ -1,7 +1,7 @@
 # Encoding: utf-8
 
 # --
-# Copyright (c) 2008-2022 Net-ng.
+# Copyright (c) 2008-2023 Net-ng.
 # All rights reserved.
 #
 # This software is licensed under the BSD License, as described in
@@ -172,16 +172,30 @@ def test_list():
     e = etree.Element('person')
     e.text = 'hello'
 
-    elements = [h.p('hello'), x.person('hello'), x.comment('hello'), x.processing_instruction('hello'), e, 'hello', u'hello']
+    elements = [
+        h.p('hello'),
+        x.person('hello'),
+        x.comment('hello'),
+        x.processing_instruction('hello'),
+        e,
+        'hello',
+        u'hello',
+    ]
     r = p.serialize(elements)
     assert r == b'<p>hello</p><person>hello</person><!--hello--><?hello ?><person>hello</person>hellohello'
 
     r = p.serialize(elements, 'utf-8', '<!DOCTYPE html>')
-    assert r == b'<!DOCTYPE html>\n<p>hello</p><person>hello</person><!--hello--><?hello ?><person>hello</person>hellohello'
+    assert (
+        r
+        == b'<!DOCTYPE html>\n<p>hello</p><person>hello</person><!--hello--><?hello ?><person>hello</person>hellohello'
+    )
 
     elements = elements[1:] + [elements[0]]
     r = p.serialize(elements)
     assert r == b'<person>hello</person><!--hello--><?hello ?><person>hello</person>hellohello<p>hello</p>'
 
     r = p.serialize(elements, 'utf-8', '<!DOCTYPE html>')
-    assert r == b'<!DOCTYPE html>\n<person>hello</person><!--hello--><?hello ?><person>hello</person>hellohello<p>hello</p>'
+    assert (
+        r
+        == b'<!DOCTYPE html>\n<person>hello</person><!--hello--><?hello ?><person>hello</person>hellohello<p>hello</p>'
+    )

@@ -1,5 +1,5 @@
 # --
-# Copyright (c) 2008-2022 Net-ng.
+# Copyright (c) 2008-2023 Net-ng.
 # All rights reserved.
 #
 # This software is licensed under the BSD License, as described in
@@ -44,32 +44,40 @@ def test_1():
     h = html.Renderer()
 
     h << 'hello'
-    assert merge_head(p, r, h) == b'<html><head><link rel="canonical" href=""></head><body>hello</body></html>' \
+    assert (
+        merge_head(p, r, h) == b'<html><head><link rel="canonical" href=""></head><body>hello</body></html>'
         or merge_head(p, r, h) == b'<html><head><link href="" rel="canonical"></head><body>hello</body></html>'
+    )
 
     r = create_request('/a', '')
     p = create_presentation(True)
     h = html.Renderer()
 
     h << 'hello'
-    assert merge_head(p, r, h) == b'<html><head><link rel="canonical" href="/a"></head><body>hello</body></html>' \
+    assert (
+        merge_head(p, r, h) == b'<html><head><link rel="canonical" href="/a"></head><body>hello</body></html>'
         or merge_head(p, r, h) == b'<html><head><link href="/a" rel="canonical"></head><body>hello</body></html>'
+    )
 
     r = create_request('', '/b')
     p = create_presentation(True)
     h = html.Renderer()
 
     h << 'hello'
-    assert merge_head(p, r, h) == b'<html><head><link rel="canonical" href="/b"></head><body>hello</body></html>' \
+    assert (
+        merge_head(p, r, h) == b'<html><head><link rel="canonical" href="/b"></head><body>hello</body></html>'
         or merge_head(p, r, h) == b'<html><head><link href="/b" rel="canonical"></head><body>hello</body></html>'
+    )
 
     r = create_request('/a', '/b')
     p = create_presentation(True)
     h = html.Renderer()
 
     h << 'hello'
-    assert merge_head(p, r, h) == b'<html><head><link rel="canonical" href="/b/a"></head><body>hello</body></html>' \
+    assert (
+        merge_head(p, r, h) == b'<html><head><link rel="canonical" href="/b/a"></head><body>hello</body></html>'
         or merge_head(p, r, h) == b'<html><head><link href="/b/a" rel="canonical"></head><body>hello</body></html>'
+    )
 
 
 def test_2():
@@ -96,7 +104,10 @@ def test_4():
     h = html.Renderer()
 
     h << h.comment('c1') << h.p('hello') << h.comment('c2') << h.p('world') << h.comment('c3')
-    assert merge_head(p, r, h) == b'<html><head></head><body><!--c1--><p>hello</p><!--c2--><p>world</p><!--c3--></body></html>'
+    assert (
+        merge_head(p, r, h)
+        == b'<html><head></head><body><!--c1--><p>hello</p><!--c2--><p>world</p><!--c3--></body></html>'
+    )
 
 
 def test_5():
@@ -254,7 +265,10 @@ def test_21():
     with h.html:
         h << h.comment('c1') << h.p('hello') << h.comment('c2') << h.p('world') << h.comment('c3')
 
-    assert merge_head(p, r, h) == b'<html><head></head><body><!--c1--><p>hello</p><!--c2--><p>world</p><!--c3--></body></html>'
+    assert (
+        merge_head(p, r, h)
+        == b'<html><head></head><body><!--c1--><p>hello</p><!--c2--><p>world</p><!--c3--></body></html>'
+    )
 
 
 def test_22():
@@ -419,7 +433,10 @@ def test_36():
     h.head << h.head.title('hello')
     h << h.head.head(h.head.title('world')) << h.p('foo')
 
-    assert merge_head(p, r, h) == b'<html><head><title>world</title><title>hello</title></head><body><p>foo</p></body></html>'
+    assert (
+        merge_head(p, r, h)
+        == b'<html><head><title>world</title><title>hello</title></head><body><p>foo</p></body></html>'
+    )
 
 
 def test_37():
@@ -430,7 +447,9 @@ def test_37():
     h.head << h.head.head(id='header_id')
     h << h.head.head(class_='header_class') << h.p('foo')
 
-    assert merge_head(p, r, h) == b'<html><head class="header_class" id="header_id"></head><body><p>foo</p></body></html>'
+    assert (
+        merge_head(p, r, h) == b'<html><head class="header_class" id="header_id"></head><body><p>foo</p></body></html>'
+    )
 
 
 def test_38():
@@ -467,7 +486,9 @@ def test_41():
     h = html.Renderer()
 
     h << h.html(h.head.head(h.head.title, id='head'), h.p('foo'), id='html')
-    assert merge_head(p, r, h) == b'<html id="html"><head id="head"><title></title></head><body><p>foo</p></body></html>'
+    assert (
+        merge_head(p, r, h) == b'<html id="html"><head id="head"><title></title></head><body><p>foo</p></body></html>'
+    )
 
     r = create_request('/a', '/b')
     p = create_presentation(False)
@@ -476,8 +497,12 @@ def test_41():
 
     h << h.html(h.head.head(h.head.title, id='head'), h.p('foo'), id='html')
     result = merge_head(p, r, h)
-    assert result == b'<html id="html"><head id="head"><title></title><script type="text/javascript" src="/foo.js"></script></head><body><p>foo</p></body></html>' \
-        or result == b'<html id="html"><head id="head"><title></title><script src="/foo.js" type="text/javascript"></script></head><body><p>foo</p></body></html>'
+    assert (
+        result
+        == b'<html id="html"><head id="head"><title></title><script type="text/javascript" src="/foo.js"></script></head><body><p>foo</p></body></html>'
+        or result
+        == b'<html id="html"><head id="head"><title></title><script src="/foo.js" type="text/javascript"></script></head><body><p>foo</p></body></html>'
+    )
 
 
 def test_42():
@@ -495,8 +520,12 @@ def test_42():
 
     h << h.html(h.body(h.p('foo'), id="body"), id='html')
     result = merge_head(p, r, h)
-    assert result == b'<html id="html"><head><script type="text/javascript" src="/foo.js"></script></head><body id="body"><p>foo</p></body></html>' \
-        or result == b'<html id="html"><head><script src="/foo.js" type="text/javascript"></script></head><body id="body"><p>foo</p></body></html>'
+    assert (
+        result
+        == b'<html id="html"><head><script type="text/javascript" src="/foo.js"></script></head><body id="body"><p>foo</p></body></html>'
+        or result
+        == b'<html id="html"><head><script src="/foo.js" type="text/javascript"></script></head><body id="body"><p>foo</p></body></html>'
+    )
 
 
 def test_43():
@@ -505,7 +534,10 @@ def test_43():
     h = html.Renderer()
 
     h << h.html(h.head.head(h.head.title, id='head'), h.body(h.p('foo'), id="body"), id='html')
-    assert merge_head(p, r, h) == b'<html id="html"><head id="head"><title></title></head><body id="body"><p>foo</p></body></html>'
+    assert (
+        merge_head(p, r, h)
+        == b'<html id="html"><head id="head"><title></title></head><body id="body"><p>foo</p></body></html>'
+    )
 
     r = create_request('/a', '/b')
     p = create_presentation(False)
@@ -514,8 +546,12 @@ def test_43():
 
     h << h.html(h.head.head(h.head.title, id='head'), h.body(h.p('foo'), id="body"), id='html')
     result = merge_head(p, r, h)
-    assert result == b'<html id="html"><head id="head"><title></title><script type="text/javascript" src="/foo.js"></script></head><body id="body"><p>foo</p></body></html>' \
-        or result == b'<html id="html"><head id="head"><title></title><script src="/foo.js" type="text/javascript"></script></head><body id="body"><p>foo</p></body></html>'
+    assert (
+        result
+        == b'<html id="html"><head id="head"><title></title><script type="text/javascript" src="/foo.js"></script></head><body id="body"><p>foo</p></body></html>'
+        or result
+        == b'<html id="html"><head id="head"><title></title><script src="/foo.js" type="text/javascript"></script></head><body id="body"><p>foo</p></body></html>'
+    )
 
 
 def test_44():
@@ -533,8 +569,12 @@ def test_44():
 
     h << [h.head.head(h.head.title, id='head'), h.p('foo')]
     result = merge_head(p, r, h)
-    assert result == b'<html><head id="head"><title></title><script type="text/javascript" src="/foo.js"></script></head><body><p>foo</p></body></html>' \
-        or result == b'<html><head id="head"><title></title><script src="/foo.js" type="text/javascript"></script></head><body><p>foo</p></body></html>'
+    assert (
+        result
+        == b'<html><head id="head"><title></title><script type="text/javascript" src="/foo.js"></script></head><body><p>foo</p></body></html>'
+        or result
+        == b'<html><head id="head"><title></title><script src="/foo.js" type="text/javascript"></script></head><body><p>foo</p></body></html>'
+    )
 
 
 def test_45():
@@ -543,7 +583,9 @@ def test_45():
     h = html.Renderer()
 
     h << [h.head.head(h.head.title, id='head'), h.body(h.p('foo'), id="body")]
-    assert merge_head(p, r, h) == b'<html><head id="head"><title></title></head><body id="body"><p>foo</p></body></html>'
+    assert (
+        merge_head(p, r, h) == b'<html><head id="head"><title></title></head><body id="body"><p>foo</p></body></html>'
+    )
 
     r = create_request('/a', '/b')
     p = create_presentation(False)
@@ -552,8 +594,12 @@ def test_45():
 
     h << [h.head.head(h.head.title, id='head'), h.body(h.p('foo'), id="body")]
     result = merge_head(p, r, h)
-    assert result == b'<html><head id="head"><title></title><script type="text/javascript" src="/foo.js"></script></head><body id="body"><p>foo</p></body></html>' \
-        or result == b'<html><head id="head"><title></title><script src="/foo.js" type="text/javascript"></script></head><body id="body"><p>foo</p></body></html>'
+    assert (
+        result
+        == b'<html><head id="head"><title></title><script type="text/javascript" src="/foo.js"></script></head><body id="body"><p>foo</p></body></html>'
+        or result
+        == b'<html><head id="head"><title></title><script src="/foo.js" type="text/javascript"></script></head><body id="body"><p>foo</p></body></html>'
+    )
 
 
 def test_46():
@@ -571,8 +617,12 @@ def test_46():
 
     h << h.body(h.p('foo'), id="body")
     result = merge_head(p, r, h)
-    assert result == b'<html><head><script type="text/javascript" src="/foo.js"></script></head><body id="body"><p>foo</p></body></html>' \
-        or result == b'<html><head><script src="/foo.js" type="text/javascript"></script></head><body id="body"><p>foo</p></body></html>'
+    assert (
+        result
+        == b'<html><head><script type="text/javascript" src="/foo.js"></script></head><body id="body"><p>foo</p></body></html>'
+        or result
+        == b'<html><head><script src="/foo.js" type="text/javascript"></script></head><body id="body"><p>foo</p></body></html>'
+    )
 
 
 def test_canonical():
@@ -580,28 +630,36 @@ def test_canonical():
     p = create_presentation(True)
     h = html.Renderer()
 
-    assert merge_head(p, r, h) == b'<html><head><link rel="canonical" href=""></head><body></body></html>' \
+    assert (
+        merge_head(p, r, h) == b'<html><head><link rel="canonical" href=""></head><body></body></html>'
         or merge_head(p, r, h) == b'<html><head><link href="" rel="canonical"></head><body></body></html>'
+    )
 
     r = create_request('', '')
     p = create_presentation(True)
     h = html.Renderer()
 
     h.head << h.head.link(rel='canonical', href='/bar')
-    assert merge_head(p, r, h) == b'<html><head><link rel="canonical" href="/bar"></head><body></body></html>' \
+    assert (
+        merge_head(p, r, h) == b'<html><head><link rel="canonical" href="/bar"></head><body></body></html>'
         or merge_head(p, r, h) == b'<html><head><link href="/bar" rel="canonical"></head><body></body></html>'
+    )
 
     r = create_request('/foo', '')
     p = create_presentation(True)
     h = html.Renderer()
 
-    assert merge_head(p, r, h) == b'<html><head><link rel="canonical" href="/foo"></head><body></body></html>' \
+    assert (
+        merge_head(p, r, h) == b'<html><head><link rel="canonical" href="/foo"></head><body></body></html>'
         or merge_head(p, r, h) == b'<html><head><link href="/foo" rel="canonical"></head><body></body></html>'
+    )
 
     r = create_request('/foo', '')
     p = create_presentation(True)
     h = html.Renderer()
 
     h.head << h.head.link(rel='canonical', href='/bar')
-    assert merge_head(p, r, h) == b'<html><head><link rel="canonical" href="/bar"></head><body></body></html>' \
+    assert (
+        merge_head(p, r, h) == b'<html><head><link rel="canonical" href="/bar"></head><body></body></html>'
         or merge_head(p, r, h) == b'<html><head><link href="/bar" rel="canonical"></head><body></body></html>'
+    )
