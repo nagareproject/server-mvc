@@ -10,14 +10,14 @@
 # --
 
 from nagare.renderers import html5_base
-from nagare.server.http_application import Request, Response, RESTApp  # noqa: F401
+from nagare.server.http_application import Request, RESTApp, Response  # noqa: F401
 
 
 def livereload(event, dirname, filename, reloader, url):
     if filename.endswith(('.css', '.js', '.gif', '.png', '.jpeg', '.jpg')):
         reloader.reload_asset(url + '/' + filename)
 
-    return False
+    return None
 
 
 # ---------------------------------------------------------------------------

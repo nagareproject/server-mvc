@@ -10,8 +10,8 @@
 import types
 
 from lxml import etree
-from nagare.services import plugin
 from webob import Response
+from nagare.services import plugin
 
 
 class PresentationService(plugin.Plugin):
@@ -72,7 +72,7 @@ class PresentationService(plugin.Plugin):
             output.attrib.pop('xmlns', None)
             output = output.tostring(encoding=encoding, pretty_print=pretty_print, doctype=doctype)
 
-        elif isinstance(output, type(u'')):
+        elif isinstance(output, str):
             output = output.encode(encoding)
 
         elif isinstance(output, (list, tuple, types.GeneratorType)):
