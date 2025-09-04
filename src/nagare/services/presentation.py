@@ -1,5 +1,5 @@
 # --
-# Copyright (c) 2008-2024 Net-ng.
+# Copyright (c) 2008-2025 Net-ng.
 # All rights reserved.
 #
 # This software is licensed under the BSD License, as described in
@@ -22,9 +22,7 @@ class PresentationService(plugin.Plugin):
     LOAD_PRIORITY = 130
 
     def __init__(self, name, dist, canonical_url=True, frame_options='deny', **config):
-        super(PresentationService, self).__init__(
-            name, dist, canonical_url=canonical_url, frame_options=frame_options, **config
-        )
+        super().__init__(name, dist, canonical_url=canonical_url, frame_options=frame_options, **config)
 
         self.canonical_url = canonical_url
         self.frame_options = frame_options.upper()

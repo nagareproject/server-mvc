@@ -1,7 +1,5 @@
-# Encoding: utf-8
-
 # --
-# Copyright (c) 2008-2024 Net-ng.
+# Copyright (c) 2008-2025 Net-ng.
 # All rights reserved.
 #
 # This software is licensed under the BSD License, as described in
@@ -37,7 +35,7 @@ class App(RESTApp):
 
     def __init__(self, name, dist, static_url, static, gzip_static, services_service, **config):
         services_service(
-            super(App, self).__init__,
+            super().__init__,
             name,
             dist,
             static_url=static_url,
@@ -51,7 +49,7 @@ class App(RESTApp):
         self.gzip_static = gzip_static
 
     def handle_start(self, app, services_service, statics_service, reloader_service=None):
-        services_service(super(App, self).handle_start, app)
+        services_service(super().handle_start, app)
 
         if self.static_url:
             statics_service.register_dir(self.static_url, self.static_path, self.gzip_static)
@@ -66,7 +64,7 @@ class App(RESTApp):
         return self.renderer_factory(static_url=self.static_url)
 
     def create_dispatch_args(self, renderer, **params):
-        return super(App, self).create_dispatch_args(**params) + (renderer,)
+        return super().create_dispatch_args(**params) + (renderer,)
 
     def set_response_body(self, response, body):
         return response

@@ -1,7 +1,5 @@
-# Encoding: utf-8
-
 # --
-# Copyright (c) 2008-2024 Net-ng.
+# Copyright (c) 2008-2025 Net-ng.
 # All rights reserved.
 #
 # This software is licensed under the BSD License, as described in
@@ -11,10 +9,9 @@
 
 from lxml import etree
 
+from nagare.services import presentation
 from nagare.renderers import xml
 from nagare.renderers import html_base as html
-
-from nagare.services import presentation
 
 
 def test_html():
@@ -24,7 +21,7 @@ def test_html():
     r = p.serialize(h.p('hello'))
     assert r == b'<p>hello</p>'
 
-    r = p.serialize(h.p(u'été'), 'utf-8', None)
+    r = p.serialize(h.p('été'), 'utf-8', None)
     assert r == b'<p>\xc3\xa9t\xc3\xa9</p>'
 
     r = p.serialize(h.p('hello'), 'utf-8', '<!DOCTYPE html>')
@@ -38,7 +35,7 @@ def test_xml():
     r = p.serialize(x.person('hello'))
     assert r == b'<person>hello</person>'
 
-    r = p.serialize(x.person(u'été'), 'utf-8', None)
+    r = p.serialize(x.person('été'), 'utf-8', None)
     assert r == b'<person>\xc3\xa9t\xc3\xa9</person>'
 
     r = p.serialize(x.person('hello'), 'utf-8', '<!DOCTYPE html>')
@@ -52,7 +49,7 @@ def test_comment():
     r = p.serialize(x.comment('hello'), 'utf-8')
     assert r == b'<!--hello-->'
 
-    r = p.serialize(x.comment(u'été'), 'utf-8', None)
+    r = p.serialize(x.comment('été'), 'utf-8', None)
     assert r == b'<!--\xc3\xa9t\xc3\xa9-->'
 
     r = p.serialize(x.comment('hello'), 'utf-8', '<!DOCTYPE html>')
@@ -66,7 +63,7 @@ def test_pi():
     r = p.serialize(x.processing_instruction('hello'))
     assert r == b'<?hello ?>'
 
-    r = p.serialize(x.processing_instruction(u'été'), 'utf-8', None)
+    r = p.serialize(x.processing_instruction('été'), 'utf-8', None)
     assert r == b'<?\xc3\xa9t\xc3\xa9 ?>'
 
     r = p.serialize(x.processing_instruction('hello'), 'utf-8', '<!DOCTYPE html>')
@@ -82,7 +79,7 @@ def test_etree():
     assert r == b'<person>hello</person>'
 
     e = etree.Element('person')
-    e.text = u'été'
+    e.text = 'été'
     r = p.serialize(e, 'utf-8', None)
     assert r == b'<person>\xc3\xa9t\xc3\xa9</person>'
 
@@ -98,7 +95,7 @@ def test_str():
     r = p.serialize(b'hello world', 'utf-8')
     assert r == b'hello world'
 
-    r = p.serialize(u'été'.encode('utf-8'), 'utf-8')
+    r = p.serialize('été'.encode('utf-8'), 'utf-8')
     assert r == b'\xc3\xa9t\xc3\xa9'
 
     r = p.serialize(b'hello world', 'utf-8', '<!DOCTYPE html>')
@@ -108,13 +105,13 @@ def test_str():
 def test_unicode():
     p = presentation.PresentationService(None, None, False)
 
-    r = p.serialize(u'hello world')
+    r = p.serialize('hello world')
     assert r == b'hello world'
 
-    r = p.serialize(u'été', 'utf-8', None)
+    r = p.serialize('été', 'utf-8', None)
     assert r == b'\xc3\xa9t\xc3\xa9'
 
-    r = p.serialize(u'hello world', 'utf-8', '<!DOCTYPE html>')
+    r = p.serialize('hello world', 'utf-8', '<!DOCTYPE html>')
     assert r == b'hello world'
 
 
@@ -124,21 +121,21 @@ def test_list():
 
     p = presentation.PresentationService(None, None, False)
 
-    r = p.serialize(['hello', u'world'])
+    r = p.serialize(['hello', 'world'])
     assert r == b'helloworld'
 
-    r = p.serialize(['hello', u'world'], 'utf-8', '<!DOCTYPE html>')
+    r = p.serialize(['hello', 'world'], 'utf-8', '<!DOCTYPE html>')
     assert r == b'helloworld'
 
-    r = p.serialize(('hello', u'world'))
+    r = p.serialize(('hello', 'world'))
     assert r == b'helloworld'
 
-    r = p.serialize(('hello', u'world'), 'utf-8', '<!DOCTYPE html>')
+    r = p.serialize(('hello', 'world'), 'utf-8', '<!DOCTYPE html>')
     assert r == b'helloworld'
 
     def producer():
         yield 'hello'
-        yield u'world'
+        yield 'world'
 
     r = p.serialize(producer())
     assert r == b'helloworld'
@@ -146,21 +143,21 @@ def test_list():
     r = p.serialize(producer(), 'utf-8', '<!DOCTYPE html>')
     assert r == b'helloworld'
 
-    r = p.serialize(['hello', u'world', h.div])
+    r = p.serialize(['hello', 'world', h.div])
     assert r == b'helloworld<div></div>'
 
-    r = p.serialize(['hello', u'world', h.div], 'utf-8', '<!DOCTYPE html>')
+    r = p.serialize(['hello', 'world', h.div], 'utf-8', '<!DOCTYPE html>')
     assert r == b'<!DOCTYPE html>\nhelloworld<div></div>'
 
-    r = p.serialize(('hello', u'world', h.div))
+    r = p.serialize(('hello', 'world', h.div))
     assert r == b'helloworld<div></div>'
 
-    r = p.serialize(('hello', u'world', h.div), 'utf-8', '<!DOCTYPE html>')
+    r = p.serialize(('hello', 'world', h.div), 'utf-8', '<!DOCTYPE html>')
     assert r == b'<!DOCTYPE html>\nhelloworld<div></div>'
 
     def producer():
         yield 'hello'
-        yield u'world'
+        yield 'world'
         yield h.div
 
     r = p.serialize(producer())
@@ -179,7 +176,7 @@ def test_list():
         x.processing_instruction('hello'),
         e,
         'hello',
-        u'hello',
+        'hello',
     ]
     r = p.serialize(elements)
     assert r == b'<p>hello</p><person>hello</person><!--hello--><?hello ?><person>hello</person>hellohello'
