@@ -16,9 +16,10 @@ from nagare.services import plugin
 
 
 class PresentationService(plugin.Plugin):
-    CONFIG_SPEC = dict(
-        plugin.Plugin.CONFIG_SPEC, canonical_url='boolean(default=True)', frame_options='string(default="deny")'
-    )
+    CONFIG_SPEC = plugin.Plugin.CONFIG_SPEC | {
+        'canonical_url': 'boolean(default=True)',
+        'frame_options': 'string(default="deny")',
+    }
     LOAD_PRIORITY = 130
 
     def __init__(self, name, dist, canonical_url=True, frame_options='deny', **config):

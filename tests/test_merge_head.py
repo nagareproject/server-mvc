@@ -7,12 +7,11 @@
 # this distribution.
 # --
 
+import webob
 from lxml import etree
 
-import webob
-from nagare.renderers import html_base as html
-
 from nagare.services import presentation
+from nagare.renderers import html_base as html
 
 
 def create_request(path_info, script_name):
@@ -510,7 +509,7 @@ def test_42():
     p = create_presentation(False)
     h = html.Renderer()
 
-    h << h.html(h.body(h.p('foo'), id="body"), id='html')
+    h << h.html(h.body(h.p('foo'), id='body'), id='html')
     assert merge_head(p, r, h) == b'<html id="html"><head></head><body id="body"><p>foo</p></body></html>'
 
     r = create_request('/a', '/b')
@@ -518,7 +517,7 @@ def test_42():
     h = html.Renderer()
     h.head.javascript_url('/foo.js')
 
-    h << h.html(h.body(h.p('foo'), id="body"), id='html')
+    h << h.html(h.body(h.p('foo'), id='body'), id='html')
     result = merge_head(p, r, h)
     assert (
         result
@@ -533,7 +532,7 @@ def test_43():
     p = create_presentation(False)
     h = html.Renderer()
 
-    h << h.html(h.head.head(h.head.title, id='head'), h.body(h.p('foo'), id="body"), id='html')
+    h << h.html(h.head.head(h.head.title, id='head'), h.body(h.p('foo'), id='body'), id='html')
     assert (
         merge_head(p, r, h)
         == b'<html id="html"><head id="head"><title></title></head><body id="body"><p>foo</p></body></html>'
@@ -544,7 +543,7 @@ def test_43():
     h = html.Renderer()
     h.head.javascript_url('/foo.js')
 
-    h << h.html(h.head.head(h.head.title, id='head'), h.body(h.p('foo'), id="body"), id='html')
+    h << h.html(h.head.head(h.head.title, id='head'), h.body(h.p('foo'), id='body'), id='html')
     result = merge_head(p, r, h)
     assert (
         result
@@ -582,7 +581,7 @@ def test_45():
     p = create_presentation(False)
     h = html.Renderer()
 
-    h << [h.head.head(h.head.title, id='head'), h.body(h.p('foo'), id="body")]
+    h << [h.head.head(h.head.title, id='head'), h.body(h.p('foo'), id='body')]
     assert (
         merge_head(p, r, h) == b'<html><head id="head"><title></title></head><body id="body"><p>foo</p></body></html>'
     )
@@ -592,7 +591,7 @@ def test_45():
     h = html.Renderer()
     h.head.javascript_url('/foo.js')
 
-    h << [h.head.head(h.head.title, id='head'), h.body(h.p('foo'), id="body")]
+    h << [h.head.head(h.head.title, id='head'), h.body(h.p('foo'), id='body')]
     result = merge_head(p, r, h)
     assert (
         result
@@ -607,7 +606,7 @@ def test_46():
     p = create_presentation(False)
     h = html.Renderer()
 
-    h << h.body(h.p('foo'), id="body")
+    h << h.body(h.p('foo'), id='body')
     assert merge_head(p, r, h) == b'<html><head></head><body id="body"><p>foo</p></body></html>'
 
     r = create_request('/a', '/b')
@@ -615,7 +614,7 @@ def test_46():
     h = html.Renderer()
     h.head.javascript_url('/foo.js')
 
-    h << h.body(h.p('foo'), id="body")
+    h << h.body(h.p('foo'), id='body')
     result = merge_head(p, r, h)
     assert (
         result

@@ -24,13 +24,12 @@ def livereload(event, dirname, filename, reloader, url):
 class App(RESTApp):
     """Application to handle a HTTP request."""
 
-    CONFIG_SPEC = dict(
-        RESTApp.CONFIG_SPEC,
-        default_content_type='string(default="text/html")',
-        static_url='string(default="/static$app_url")',
-        static='string(default="$_static_path")',
-        gzip_static='boolean(default=True)',
-    )
+    CONFIG_SPEC = RESTApp.CONFIG_SPEC | {
+        'default_content_type': 'string(default="text/html")',
+        'static_url': 'string(default="/static$app_url")',
+        'static': 'string(default="$_static_path")',
+        'gzip_static': 'boolean(default=True)',
+    }
     renderer_factory = html5_base.Renderer
 
     def __init__(self, name, dist, static_url, static, gzip_static, services_service, **config):
