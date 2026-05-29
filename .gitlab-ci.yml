@@ -10,8 +10,10 @@
 # --
 
 tests:
+  image: ghcr.io/astral-sh/uv:python3.14-trixie-slim
+
   script:
-    - pip3 install ruff pytest .
-    - ruff format --check src
-    - ruff check src
-    - pytest
+    - pip3 install .
+    - uvx format --check src
+    - uvx check src
+    - uvx pytest

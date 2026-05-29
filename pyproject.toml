@@ -19,7 +19,7 @@ dynamic = ['version', 'entry-points']
 description = 'Nagare MVC application server'
 authors = [{ name = 'Net-ng' }, { email = 'contact@net-ng.com' }]
 license = { file = 'LICENSE.txt' }
-requires-python = '>=3.7'
+requires-python = '>=3.10'
 dependencies = [
     'nagare-services',
     'nagare-renderers-html',
@@ -34,7 +34,7 @@ content-type = 'text/x-rst'
 entry-points = { file = 'entry-points.txt' }
 
 [project.optional-dependencies]
-dev = ['sphinx', 'sphinx_rtd_theme', 'pre-commit', 'ruff', 'pytest', 'twine']
+dev = ['pytest']
 
 [project.urls]
 Homepage = 'https://nagare.org'
