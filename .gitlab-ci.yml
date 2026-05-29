@@ -13,7 +13,7 @@ tests:
   image: ghcr.io/astral-sh/uv:python3.14-trixie-slim
 
   script:
-    - uv pip install --system pytest .
+    - SETUPTOOLS_SCM_PRETEND_VERSION=0.6 uv pip install --system pytest .
     - uvx ruff format --check src
     - uvx ruff check src
     - python -m pytest
