@@ -91,26 +91,30 @@ class PresentationService(plugin.Plugin):
             raise request.create_redirect_response()
 
         h = app.create_renderer(request=request, response=response, **params)
-
         response = chain.next(app=app, request=request, response=response, renderer=h, **params)
+        if not (200 <= response.status_code < 300):
+            return response
 
         response.content_type = h.content_type
         response.doctype = h.doctype
 
         body = render(h) if render else (response if response.body or response.text else h.root)
         if isinstance(body, Response):
-            response = body
-        else:
-            if not request.is_xhr and ('html' in response.content_type):
-                body = self.merge_head(request, h, h.head.render_top(), h.head.render_bottom(), body)
-                if self.frame_options:
-                    response.headers.setdefault('X-Frame-Options', self.frame_options)
+            return body
 
-            response.body = self.serialize(
-                body,
-                encoding=response.charset or response.default_body_encoding,
-                doctype=response.doctype if not request.is_xhr else None,
-                pretty_print=True,
-            )
+        if not (200 <= response.status_code < 300):
+            return response
+
+        if not request.is_xhr and ('html' in response.content_type):
+            body = self.merge_head(request, h, h.head.render_top(), h.head.render_bottom(), body)
+            if self.frame_options:
+                response.headers.setdefault('X-Frame-Options', self.frame_options)
+
+        response.body = self.serialize(
+            body,
+            encoding=response.charset or response.default_body_encoding,
+            doctype=response.doctype if not request.is_xhr else None,
+            pretty_print=True,
+        )
 
         return response
